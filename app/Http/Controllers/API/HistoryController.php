@@ -43,9 +43,9 @@ class HistoryController extends Controller
     }
 
     function getSummaryJson() {
-        $result = DB::table('Onee AS IP')
-        ->join('HSC_OngoingPark AS OP', 'IP.Dummy', '=', 'OP.Dummy', 'full outer')
-        ->join('HSC_Park AS P', 'OP.ParkingLot', '=', 'P.ParkID', 'full outer')
+        $result = DB::table('HSC2012.dbo.Onee AS IP')
+        ->join('HSC2012.dbo.HSC_OngoingPark AS OP', 'IP.Dummy', '=', 'OP.Dummy', 'full outer')
+        ->join('HSC2012.dbo.HSC_Park AS P', 'OP.ParkingLot', '=', 'P.ParkID', 'full outer')
         ->whereNotNull('Status')
         ->whereNotIn('Status', ['COMPLETED', 'PENDING', 'CLOSED', 'CANCELLED', ''])
         ->select('IP.*', 'OP.ParkingLot', 'P.Type as ParkType', 'P.created_at as ParkCreated', 'P.updated_at as ParkUpdated', 'P.*')
@@ -90,8 +90,8 @@ class HistoryController extends Controller
     }
 
     function getParkingLot($prefix, $number) {
-        $result = DB::table('Onee AS IP')
-        ->join('HSC_OngoingPark AS IB', 'IP.Dummy', '=', 'IB.Dummy')
+        $result = DB::table('HSC2012.dbo.Onee AS IP')
+        ->join('HSC2012.dbo.HSC_OngoingPark AS IB', 'IP.Dummy', '=', 'IB.Dummy')
         ->where('Prefix', '=', $prefix)
         ->where('Number', '=', $number)
         ->groupBy('IP.Prefix', 'IP.Number', 'IP.Dummy', 'IB.ParkingLot')
