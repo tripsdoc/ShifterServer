@@ -31,14 +31,14 @@ class FormatController extends Controller
         $loopdata->Status = $datas->Status;
         $loopdata->DateOfStuffUnStuff = $datas->{'DateofStuf/Unstuf'};
         $loopdata->Dummy = $datas->Dummy;
-        //$loopdata->Expr1 = $datas->Expr1;
-        //$loopdata->Expr2 = $datas->Expr2;
-        //$loopdata->Expr3 = $datas->Expr3;
-        //$loopdata->Chassis = $datas->Chassis;
+        $loopdata->Expr1 = $datas->Expr1;
+        $loopdata->Expr2 = $datas->Expr2;
+        $loopdata->Expr3 = $datas->Expr3;
+        $loopdata->Chassis = $datas->Chassis;
 
-        //$loopdata->TT = $datas->TT;
-        //$loopdata->Pkg = $datas->TotalPkgs;
-        //$loopdata->Yard = $datas->Yard;
+        $loopdata->TT = $datas->TT;
+        $loopdata->Pkg = $datas->TotalPkgs;
+        $loopdata->Yard = $datas->Yard;
         $loopdata->YardRemarks = $datas->YardRemarks;
         $loopdata->IE = $datas->{'Import/Export'};
         if (!empty($datas->ParkingLot)) {
@@ -58,7 +58,7 @@ class FormatController extends Controller
                 }
             }
         }
-        //$loopdata->Driver = $datas->Driver;
+        $loopdata->Driver = $datas->Driver;
         $loopdata->parkIn = (!empty($datas->ETA)) ? date('d/m H:i', strtotime($datas->ETA)) : "";
         $loopdata->parkOut = $datas->{'LD/POD'};
         return $loopdata;

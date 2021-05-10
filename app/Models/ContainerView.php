@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class ContainerView extends Model
 {
     protected $connection = 'sqlsrv2';
-    protected $table = "Onee";
+    protected $table = "OneeX";
     protected $primaryKey = "Dummy";
     public $timestamps = false;
 }
