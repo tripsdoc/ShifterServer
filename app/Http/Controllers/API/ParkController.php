@@ -38,7 +38,7 @@ class ParkController extends Controller
     // -----------------------------------------  Picker Function -----------------------------------------------------------
 
     function getLikeContainer(Request $request) {
-        $result = DB::table('HSC2012.dbo.Onee AS IP')
+        $result = DB::table('HSC2012.dbo.OneeX AS IP')
             ->join('HSC2012.dbo.HSC_OngoingPark AS OP', 'IP.Dummy', '=', 'OP.Dummy', 'full outer')
             ->join('HSC2012.dbo.HSC_Park AS P', 'OP.ParkingLot', '=', 'P.ParkID', 'full outer')
             ->whereNotNull('Status')
@@ -120,7 +120,7 @@ class ParkController extends Controller
             ->whereNotIn('Status', ['NEW', 'NOMINATED', 'PROCESSED', ''])
             ->get();
         }); */
-        $result = DB::table('HSC2012.dbo.Onee AS IP')
+        $result = DB::table('HSC2012.dbo.OneeX AS IP')
             ->join('HSC2012.dbo.HSC_OngoingPark AS OP', 'IP.Dummy', '=', 'OP.Dummy', 'full outer')
             ->join('HSC2012.dbo.HSC_Park AS P', 'OP.ParkingLot', '=', 'P.ParkID', 'full outer')
             ->whereNotNull('Status')
@@ -407,7 +407,7 @@ class ParkController extends Controller
         $reqdummy = Cache::remember('CheckDummy' . $dummy, 60, function () {
             return ContainerView::where('Dummy', '=', $dummy)->first();
         }); 
-        $data = DB::table('HSC2012.dbo.Onee AS IP')
+        $data = DB::table('HSC2012.dbo.OneeX AS IP')
         ->join('HSC2012.dbo.HSC_OngoingPark AS IB', 'IP.Dummy', '=', 'IB.Dummy')
         ->where('Prefix', '=', $reqdummy->Prefix)
         ->where('Number', '=', $reqdummy->Number)

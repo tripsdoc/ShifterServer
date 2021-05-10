@@ -43,7 +43,7 @@ class HistoryController extends Controller
     }
 
     function getSummaryJson() {
-        $result = DB::table('HSC2012.dbo.Onee AS IP')
+        $result = DB::table('HSC2012.dbo.OneeX AS IP')
         ->join('HSC2012.dbo.HSC_OngoingPark AS OP', 'IP.Dummy', '=', 'OP.Dummy', 'full outer')
         ->join('HSC2012.dbo.HSC_Park AS P', 'OP.ParkingLot', '=', 'P.ParkID', 'full outer')
         ->whereNotNull('Status')
@@ -90,7 +90,7 @@ class HistoryController extends Controller
     }
 
     function getParkingLot($prefix, $number) {
-        $result = DB::table('HSC2012.dbo.Onee AS IP')
+        $result = DB::table('HSC2012.dbo.OneeX AS IP')
         ->join('HSC2012.dbo.HSC_OngoingPark AS IB', 'IP.Dummy', '=', 'IB.Dummy')
         ->where('Prefix', '=', $prefix)
         ->where('Number', '=', $number)
