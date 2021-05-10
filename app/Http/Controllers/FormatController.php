@@ -10,7 +10,7 @@ class FormatController extends Controller
         $loopdata = new \stdClass();
         $loopdata->VesselID = $datas->VesselID;
         $loopdata->VesselName = $datas->VesselName;
-        $loopdata->InVoy = $datas->Invoy;
+        $loopdata->InVoy = $datas->InVoy;
         $loopdata->OutVoy = $datas->OutVoy;
         $loopdata->ETA = $datas->ETA;
         $loopdata->COD = $datas->COD;
@@ -38,7 +38,6 @@ class FormatController extends Controller
 
         $loopdata->TT = $datas->TT;
         $loopdata->Pkg = $datas->TotalPkgs;
-        $loopdata->Yard = $datas->Yard;
         $loopdata->YardRemarks = $datas->YardRemarks;
         $loopdata->IE = $datas->{'Import/Export'};
         if (!empty($datas->ParkingLot)) {

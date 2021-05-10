@@ -21,6 +21,9 @@ use Cache;
 
 class ParkController extends Controller
 {
+
+    protected $rememberOneDay = 60 * 60 * 24;
+
     function debug() {
         $data = ContainerView::
         whereNotNull('Status')
@@ -38,7 +41,8 @@ class ParkController extends Controller
     // -----------------------------------------  Picker Function -----------------------------------------------------------
 
     function getLikeContainer(Request $request) {
-        $result = DB::table('HSC2012.dbo.OneeX AS IP')
+        $result = Cache::remember('ContainerLike-' . $request->number, 30, function () {
+            return DB::table('HSC2012.dbo.OneeX AS IP')
             ->join('HSC2012.dbo.HSC_OngoingPark AS OP', 'IP.Dummy', '=', 'OP.Dummy', 'full outer')
             ->join('HSC2012.dbo.HSC_Park AS P', 'OP.ParkingLot', '=', 'P.ParkID', 'full outer')
             ->whereNotNull('Status')
@@ -51,6 +55,7 @@ class ParkController extends Controller
             ->orderBy('IP.Number')
             ->orderBy('OP.createdDt', 'desc')
             ->get();
+        });
         $dataArray = array();
         $hasParkingLot = array();
         $duplicate = array();
@@ -120,12 +125,12 @@ class ParkController extends Controller
             ->whereNotIn('Status', ['NEW', 'NOMINATED', 'PROCESSED', ''])
             ->get();
         }); */
-        $result = DB::table('HSC2012.dbo.OneeX AS IP')
+        $result = Cache::remember('ContainerJSON', 30, function () {
+            return DB::table('HSC2012.dbo.OneeX AS IP')
             ->join('HSC2012.dbo.HSC_OngoingPark AS OP', 'IP.Dummy', '=', 'OP.Dummy', 'full outer')
             ->join('HSC2012.dbo.HSC_Park AS P', 'OP.ParkingLot', '=', 'P.ParkID', 'full outer')
             ->whereNotNull('Status')
             ->whereNotIn('Status', ['NEW', 'NOMINATED', 'PROCESSED', ''])
-            ->limit(1000)
             ->select('IP.*', 'OP.ParkingLot', 'P.Type as ParkType', 'P.created_at as ParkCreated', 'P.updated_at as ParkUpdated', 'P.*')
             ->orderBy('IP.ETA')
             ->orderBy('IP.Client')
@@ -133,6 +138,7 @@ class ParkController extends Controller
             ->orderBy('IP.Number')
             ->orderBy('OP.createdDt', 'desc')
             ->get();
+        });
         $dataArray = array();
         $hasParkingLot = array();
         $duplicate = array();
@@ -155,11 +161,6 @@ class ParkController extends Controller
             }
             array_push($dataArray, $newdata);
         }
-        /* $dataArray = array();
-        foreach($data as $key => $datas) {
-            $newdata = FormatCOntroller::formatOnee($datas);
-            array_push($dataArray, $newdata);
-        } */
         $response['status'] = !empty($dataArray);
         $response['data'] = $dataArray;
         return response($response);
@@ -168,10 +169,10 @@ class ParkController extends Controller
     // -------------------------------------------------------------------------------------------------------------------------
     
     function removeOldDummyFromOngoing($dummy) {
-        $data = Cache::remember('CheckDummy' . $dummy, 60, function () {
+        $data = Cache::remember('CheckDummy' . $dummy, $this->rememberOneDay, function () {
             return ContainerView::where('Dummy', '=', $dummy)->first();
         });
-        $check = Cache::remember('CheckContainer' . $data->Prefix . '-' . $data->Number, 60, function () {
+        $check = Cache::remember('CheckContainer' . $data->Prefix . '-' . $data->Number, $this->rememberOneDay, function () {
             return ContainerView::where('Prefix', '=', $data->Prefix)->where('Number', '=', $data->Number)->get();
         });
         foreach($check as $key => $datas) {
@@ -388,10 +389,10 @@ class ParkController extends Controller
     }
 
     function checkReUSE($dummy) {
-        $checkDummy = Cache::remember('CheckDummy' . $dummy, 60, function () {
+        $checkDummy = Cache::remember('CheckDummy' . $dummy, $this->rememberOneDay, function () {
             return ContainerView::where('Dummy', '=', $dummy)->first();
         });
-        $newOnee = Cache::remember('NewOnee' . $checkDummy->Prefix . '-' . $checkDummy->Number, 60, function () {
+        $newOnee = Cache::remember('NewOnee' . $checkDummy->Prefix . '-' . $checkDummy->Number, $this->rememberOneDay, function () {
             ContainerView::where('Prefix', '=', $checkDummy->Prefix)
             ->where('Number', '=', $checkDummy->Number)
             ->where('Import/Export', '=', 'Export')
@@ -404,14 +405,16 @@ class ParkController extends Controller
     }
 
     function getOngoingDummy($dummy) {
-        $reqdummy = Cache::remember('CheckDummy' . $dummy, 60, function () {
+        $reqdummy = Cache::remember('CheckDummy-' . $dummy, $this->rememberOneDay, function () {
             return ContainerView::where('Dummy', '=', $dummy)->first();
         }); 
-        $data = DB::table('HSC2012.dbo.OneeX AS IP')
-        ->join('HSC2012.dbo.HSC_OngoingPark AS IB', 'IP.Dummy', '=', 'IB.Dummy')
-        ->where('Prefix', '=', $reqdummy->Prefix)
-        ->where('Number', '=', $reqdummy->Number)
-        ->first();
+        $data = Cache::remember('Ongoing-' . $reqdummy->Prefix . '-' . $reqdummy->Number, $this->rememberOneDay, function () {
+            return DB::table('HSC2012.dbo.OneeX AS IP')
+            ->join('HSC2012.dbo.HSC_OngoingPark AS IB', 'IP.Dummy', '=', 'IB.Dummy')
+            ->where('Prefix', '=', $reqdummy->Prefix)
+            ->where('Number', '=', $reqdummy->Number)
+            ->first();
+        });
         return $data->Dummy;
     }
 

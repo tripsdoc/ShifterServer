@@ -12,6 +12,7 @@ use App\Models\ContainerInfo;
 use App\Models\Park;
 use App\Models\ShifterUser;
 use DB;
+use Cache;
 
 class HistoryController extends Controller
 {
@@ -43,18 +44,20 @@ class HistoryController extends Controller
     }
 
     function getSummaryJson() {
-        $result = DB::table('HSC2012.dbo.OneeX AS IP')
-        ->join('HSC2012.dbo.HSC_OngoingPark AS OP', 'IP.Dummy', '=', 'OP.Dummy', 'full outer')
-        ->join('HSC2012.dbo.HSC_Park AS P', 'OP.ParkingLot', '=', 'P.ParkID', 'full outer')
-        ->whereNotNull('Status')
-        ->whereNotIn('Status', ['COMPLETED', 'PENDING', 'CLOSED', 'CANCELLED', ''])
-        ->select('IP.*', 'OP.ParkingLot', 'P.Type as ParkType', 'P.created_at as ParkCreated', 'P.updated_at as ParkUpdated', 'P.*')
-        ->orderBy('IP.ETA')
-        ->orderBy('IP.Client')
-        ->orderBy('IP.Prefix')
-        ->orderBy('IP.Number')
-        ->orderBy('OP.createdDt', 'desc')
-        ->get();
+        $result = Cache::remember('SummaryJSON', 30, function () {
+            return DB::table('HSC2012.dbo.OneeX AS IP')
+            ->join('HSC2012.dbo.HSC_OngoingPark AS OP', 'IP.Dummy', '=', 'OP.Dummy', 'full outer')
+            ->join('HSC2012.dbo.HSC_Park AS P', 'OP.ParkingLot', '=', 'P.ParkID', 'full outer')
+            ->whereNotNull('Status')
+            ->whereNotIn('Status', ['COMPLETED', 'PENDING', 'CLOSED', 'CANCELLED', ''])
+            ->select('IP.*', 'OP.ParkingLot', 'P.Type as ParkType', 'P.created_at as ParkCreated', 'P.updated_at as ParkUpdated', 'P.*')
+            ->orderBy('IP.ETA')
+            ->orderBy('IP.Client')
+            ->orderBy('IP.Prefix')
+            ->orderBy('IP.Number')
+            ->orderBy('OP.createdDt', 'desc')
+            ->get();
+        });
         $dataArray = array();
         $hasParkingLot = array();
         $duplicate = array();

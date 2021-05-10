@@ -9,6 +9,7 @@ use App\Models\ShifterUser;
 use App\Models\TemporaryPark;
 use App\Models\History;
 use DB;
+use Cache;
 
 class ContainerAPIController extends Controller
 {
