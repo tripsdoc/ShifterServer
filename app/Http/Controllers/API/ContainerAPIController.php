@@ -36,7 +36,7 @@ class ContainerAPIController extends Controller
     }
 
     function getOverview($id) {
-        $data = Cache::remember('CheckDummy' . $id, 60, function () {
+        $data = Cache::remember('CheckDummy' . $id, 60, function () use ($id) {
             ContainerView::where('Dummy', '=', $id)->first();
         });
 
@@ -93,7 +93,7 @@ class ContainerAPIController extends Controller
     //Call function to request parking lots
     //or function to retrieve where container at
     function informShifter(Request $request) {
-        $data = Cache::remember('CheckDummy' . $request->id, 60, function () {
+        $data = Cache::remember('CheckDummy' . $request->id, 60, function () use ($request){
             ContainerView::where('Dummy', '=', $request->id)->first();
         });
         $shifter = ShifterUser::where('warehouse', '=', $data->DeliverTo)->get();
@@ -125,7 +125,7 @@ class ContainerAPIController extends Controller
 
     //Function to send parking lots location to driver
     function shifterSetPark(Request $request) {
-        $data = Cache::remember('CheckDummy' . $request->CntrId, 60, function () {
+        $data = Cache::remember('CheckDummy' . $request->CntrId, 60, function () use ($request) {
             ContainerView::where('Dummy', '=', $request->CntrId)->first();
         }); 
 

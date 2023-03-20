@@ -41,10 +41,10 @@ class ParkController extends Controller
     // -----------------------------------------  Picker Function -----------------------------------------------------------
 
     function getLikeContainer(Request $request) {
-        $result = Cache::remember('ContainerLike-' . $request->number, 30, function () {
-            return DB::table('HSC2012.dbo.OneeX AS IP')
-            ->join('HSC2012.dbo.HSC_OngoingPark AS OP', 'IP.Dummy', '=', 'OP.Dummy', 'full outer')
-            ->join('HSC2012.dbo.HSC_Park AS P', 'OP.ParkingLot', '=', 'P.ParkID', 'full outer')
+        $result = Cache::remember('ContainerLike-' . $request->number, 30, function () use ($request) {
+            return DB::table('HSC2017.dbo.vw_SHIFTER AS IP')
+            ->join('HSC2017.dbo.SHIFTER_OngoingPark AS OP', 'IP.Dummy', '=', 'OP.Dummy', 'full outer')
+            ->join('HSC2017.dbo.SHIFTER_Park AS P', 'OP.ParkingLot', '=', 'P.ParkID', 'full outer')
             ->whereNotNull('Status')
             ->whereNotIn('Status', ['COMPLETED', 'PENDING', 'CLOSED', 'CANCELLED', ''])
             ->where('Number', 'like', '%' . $request->number . '%')
@@ -84,7 +84,7 @@ class ParkController extends Controller
     }
 
     function getLikeTrailer(Request $request) {
-        $data = Cache::remember('LikeTrailer' . $request->trailer, 60, function () {
+        $data = Cache::remember('LikeTrailer' . $request->trailer, 60, function () use ($request) {
             Trailer::where('DelStatus', '=', 'N')
             ->where('TRTrailers', 'like', '%' . $request->trailer . '%')->get();
         });
@@ -126,9 +126,9 @@ class ParkController extends Controller
             ->get();
         }); */
         $result = Cache::remember('ContainerJSON', 30, function () {
-            return DB::table('HSC2012.dbo.OneeX AS IP')
-            ->join('HSC2012.dbo.HSC_OngoingPark AS OP', 'IP.Dummy', '=', 'OP.Dummy', 'full outer')
-            ->join('HSC2012.dbo.HSC_Park AS P', 'OP.ParkingLot', '=', 'P.ParkID', 'full outer')
+            return DB::table('HSC2017.dbo.vw_SHIFTER AS IP')
+            ->join('HSC2017.dbo.SHIFTER_OngoingPark AS OP', 'IP.Dummy', '=', 'OP.Dummy', 'full outer')
+            ->join('HSC2017.dbo.SHIFTER_Park AS P', 'OP.ParkingLot', '=', 'P.ParkID', 'full outer')
             ->whereNotNull('Status')
             ->whereNotIn('Status', ['NEW', 'NOMINATED', 'PROCESSED', ''])
             ->select('IP.*', 'OP.ParkingLot', 'P.Type as ParkType', 'P.created_at as ParkCreated', 'P.updated_at as ParkUpdated', 'P.*')
@@ -389,10 +389,10 @@ class ParkController extends Controller
     }
 
     function checkReUSE($dummy) {
-        $checkDummy = Cache::remember('CheckDummy' . $dummy, $this->rememberOneDay, function () {
+        $checkDummy = Cache::remember('CheckDummy' . $dummy, $this->rememberOneDay, function () use ($dummy){
             return ContainerView::where('Dummy', '=', $dummy)->first();
         });
-        $newOnee = Cache::remember('NewOnee' . $checkDummy->Prefix . '-' . $checkDummy->Number, $this->rememberOneDay, function () {
+        $newOnee = Cache::remember('NewOnee' . $checkDummy->Prefix . '-' . $checkDummy->Number, $this->rememberOneDay, function () use ($checkDummy){
             ContainerView::where('Prefix', '=', $checkDummy->Prefix)
             ->where('Number', '=', $checkDummy->Number)
             ->where('Import/Export', '=', 'Export')
@@ -405,12 +405,12 @@ class ParkController extends Controller
     }
 
     function getOngoingDummy($dummy) {
-        $reqdummy = Cache::remember('CheckDummy-' . $dummy, $this->rememberOneDay, function () {
+        $reqdummy = Cache::remember('CheckDummy-' . $dummy, $this->rememberOneDay, function () use ($dummy) {
             return ContainerView::where('Dummy', '=', $dummy)->first();
         }); 
-        $data = Cache::remember('Ongoing-' . $reqdummy->Prefix . '-' . $reqdummy->Number, $this->rememberOneDay, function () {
-            return DB::table('HSC2012.dbo.OneeX AS IP')
-            ->join('HSC2012.dbo.HSC_OngoingPark AS IB', 'IP.Dummy', '=', 'IB.Dummy')
+        $data = Cache::remember('Ongoing-' . $reqdummy->Prefix . '-' . $reqdummy->Number, $this->rememberOneDay, function () use($reqdummy){
+            return DB::table('HSC2017.dbo.vw_SHIFTER AS IP')
+            ->join('HSC2017.dbo.SHIFTER_OngoingPark AS IB', 'IP.Dummy', '=', 'IB.Dummy')
             ->where('Prefix', '=', $reqdummy->Prefix)
             ->where('Number', '=', $reqdummy->Number)
             ->first();

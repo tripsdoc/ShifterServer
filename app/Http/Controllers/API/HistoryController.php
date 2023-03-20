@@ -45,9 +45,9 @@ class HistoryController extends Controller
 
     function getSummaryJson() {
         $result = Cache::remember('SummaryJSON', 30, function () {
-            return DB::table('HSC2012.dbo.OneeX AS IP')
-            ->join('HSC2012.dbo.HSC_OngoingPark AS OP', 'IP.Dummy', '=', 'OP.Dummy', 'full outer')
-            ->join('HSC2012.dbo.HSC_Park AS P', 'OP.ParkingLot', '=', 'P.ParkID', 'full outer')
+            return DB::table('HSC2017.dbo.vw_SHIFTER AS IP')
+            ->join('HSC2017.dbo.SHIFTER_OngoingPark AS OP', 'IP.Dummy', '=', 'OP.Dummy', 'full outer')
+            ->join('HSC2017.dbo.SHIFTER_Park AS P', 'OP.ParkingLot', '=', 'P.ParkID', 'full outer')
             ->whereNotNull('Status')
             ->whereNotIn('Status', ['COMPLETED', 'PENDING', 'CLOSED', 'CANCELLED', ''])
             ->select('IP.*', 'OP.ParkingLot', 'P.Type as ParkType', 'P.created_at as ParkCreated', 'P.updated_at as ParkUpdated', 'P.*')
@@ -93,8 +93,8 @@ class HistoryController extends Controller
     }
 
     function getParkingLot($prefix, $number) {
-        $result = DB::table('HSC2012.dbo.OneeX AS IP')
-        ->join('HSC2012.dbo.HSC_OngoingPark AS IB', 'IP.Dummy', '=', 'IB.Dummy')
+        $result = DB::table('HSC2017.dbo.vw_SHIFTER AS IP')
+        ->join('HSC2017.dbo.SHIFTER_OngoingPark AS IB', 'IP.Dummy', '=', 'IB.Dummy')
         ->where('Prefix', '=', $prefix)
         ->where('Number', '=', $number)
         ->groupBy('IP.Prefix', 'IP.Number', 'IP.Dummy', 'IB.ParkingLot')

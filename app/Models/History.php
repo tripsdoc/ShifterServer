@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class History extends Model
 {
-    protected $connection = 'sqlsrv2';
-    protected $table = "HSC_ParkHistory";
+    protected $connection = 'sqlsrv3';
+    protected $table = "SHIFTER_ParkHistory";
     protected $primaryKey = "HistoryID";
     public $timestamps = false;
     protected $fillable = [

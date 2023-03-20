@@ -54,3 +54,4 @@ Route::post('finish', 'API\ParkController@releasePark');
 Route::post('cancel', 'API\ParkController@cancelPark');
 
 Route::post('cache', 'API\CacheController@retrieveFile');
+Route::get('debugUser', 'API\CacheController@debugUser');

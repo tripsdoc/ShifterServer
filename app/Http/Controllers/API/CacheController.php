@@ -9,9 +9,12 @@ use App\Models\ContainerView;
 use App\Models\History;
 use App\Models\Park;
 use App\Models\TemporaryPark;
+use App\Models\ShifterUser;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Redis;
+use DB;
 use Storage;
+use Cache;
 
 class CacheController extends Controller
 {
@@ -30,6 +33,11 @@ class CacheController extends Controller
         $response['status'] = TRUE;
         $response['message'] = $DummyToAssign;
         return response($response);
+    }
+
+    function debugUser() {
+        $check = ShifterUser::all();
+        dd($check);
     }
 
     function retrieveFile(Request $request) {
@@ -78,11 +86,11 @@ class CacheController extends Controller
     }
 
     function removeOldDummyFromOngoing($dummy) {
-        $data = Cache::remember('CheckDummy' . $dummy, 60, function () {
+        $data = Cache::remember('CheckDummy' . $dummy, 60, function () use ($dummy) {
             ContainerView::where('Dummy', '=', $dummy)->first();
         });
         if($data != null) {
-            $check = Cache::remember('CheckContainer' . $data->Prefix . '-' . $data->Number, 60, function () {
+            $check = Cache::remember('CheckContainer' . $data->Prefix . '-' . $data->Number, 60, function () use ($data) {
                 ContainerView::where('Prefix', '=', $data->Prefix)->where('Number', '=', $data->Number)->get();
             });
             foreach($check as $key => $datas) {
@@ -96,11 +104,11 @@ class CacheController extends Controller
 
     function checkReUSE($dummy) {
         $DummyToAssign = $dummy;
-        $checkDummy = Cache::remember('CheckDummy' . $dummy, 60, function () {
+        $checkDummy = Cache::remember('CheckDummy' . $dummy, 60, function () use ($dummy) {
             ContainerView::where('Dummy', '=', $dummy)->first();
         });
         if($checkDummy != null) {
-            $newOnee = Cache::remember('NewOnee' . $checkDummy->Prefix . '-' . $checkDummy->Number, 60, function () {
+            $newOnee = Cache::remember('NewOnee' . $checkDummy->Prefix . '-' . $checkDummy->Number, 60, function () use ($checkDummy) {
                 ContainerView::where('Prefix', '=', $checkDummy->Prefix)
                 ->where('Number', '=', $checkDummy->Number)
                 ->where('Import/Export', '=', 'Export')
